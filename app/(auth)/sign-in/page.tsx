@@ -1,7 +1,17 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 const page = () => {
+
+  const handleSignInGoogle = async() => {
+    return await authClient.signIn.social({provider: "google"})
+  }
+
+  const handleSignInGitHub = async() => {
+    return await authClient.signIn.social({provider: "github"})
+  }
   return (
     <main className="wrapper page sign-in justify-center">
       <aside className="google-sign-in">
@@ -20,7 +30,7 @@ const page = () => {
             Create, share and discover videos effortlessly with{" "}
             <span>Clipcast </span>
           </p>
-          <button>
+          <button onClick={handleSignInGoogle}>
             <Image
               src="/assets/icons/google.svg"
               alt="Google Sign In"
@@ -32,7 +42,7 @@ const page = () => {
 
           <div className="text-xl text-center">or</div>
 
-          <button>
+          <button onClick={handleSignInGitHub}>
             <Image
               src="/assets/icons/GitHub_Invertocat_Black.svg"
               alt="GitHub Sign In"
