@@ -18,7 +18,7 @@ export const BUNNY = {
 //   "Least Viewed",
 // ];
 
-// export const visibilities: Visibility[] = ["public", "private"];
+export const visibilities: Visibility[] = ["public", "private"];
 
 // export const ICONS = {
 //   record: "/assets/icons/record.svg",
@@ -60,41 +60,41 @@ export const BUNNY = {
 
 // export const emojis = ["😂", "😍", "👍"];
 
-// export const filterOptions = [
-//   "Most Viewed",
-//   "Most Recent",
-//   "Oldest First",
-//   "Least Viewed",
-// ];
+export const filterOptions = [
+  "Most Viewed",
+  "Most Recent",
+  "Oldest First",
+  "Least Viewed",
+];
 
 // export const visibilities: Visibility[] = ["public", "private"];
 
-// export const ICONS = {
-//   record: "/assets/icons/record.svg",
-//   close: "/assets/icons/close.svg",
-//   upload: "/assets/icons/upload.svg",
-// };
+export const ICONS = {
+  record: "/assets/icons/record.svg",
+  close: "/assets/icons/close.svg",
+  upload: "/assets/icons/upload.svg",
+};
 
-// export const initialVideoState = {
-//   isLoaded: false,
-//   hasIncrementedView: false,
-//   isProcessing: true,
-//   processingProgress: 0,
-// };
+export const initialVideoState = {
+  isLoaded: false,
+  hasIncrementedView: false,
+  isProcessing: true,
+  processingProgress: 0,
+};
 
 // export const infos = ["transcript", "metadata"];
 
-// export const DEFAULT_VIDEO_CONFIG = {
-//   width: { ideal: 1920 },
-//   height: { ideal: 1080 },
-//   frameRate: { ideal: 30 },
-// };
+export const DEFAULT_VIDEO_CONFIG = {
+  width: { ideal: 1920 },
+  height: { ideal: 1080 },
+  frameRate: { ideal: 30 },
+};
 
-// export const DEFAULT_RECORDING_CONFIG = {
-//   mimeType: "video/webm;codecs=vp9,opus",
-//   audioBitsPerSecond: 128000,
-//   videoBitsPerSecond: 2500000,
-// };
+export const DEFAULT_RECORDING_CONFIG = {
+  mimeType: "video/webm;codecs=vp9,opus",
+  audioBitsPerSecond: 128000,
+  videoBitsPerSecond: 2500000,
+};
 
 // export const dummyCards = [
 //   {
