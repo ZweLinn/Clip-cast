@@ -8,7 +8,6 @@ import FileInput from "@/components/ui/file-input";
 import FormField from "@/components/ui/form-field";
 import { MAX_THUMBNAIL_SIZE, MAX_VIDEO_SIZE } from "@/constants";
 import { useFileInput } from "@/hooks/use-file-input";
-import { set } from "better-auth";
 import { useRouter } from "next/navigation";
 
 import React, { ChangeEvent, useEffect } from "react";
@@ -36,6 +35,7 @@ const Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number | null>(0);
+  const [uploadStep, setUploadStep] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -80,24 +80,39 @@ const Page = () => {
       }
 
       // 1. upload URL
+      setUploadStep("Preparing upload...");
+      const result = await getVideoUploadUrl();
+      if (result.error || !result.data) {
+        setError(result.error ?? "Failed to get video upload URL.");
+        return;
+      }
       const {
         videoId,
         uploadUrl: videoUploadUrl,
         accessKey: videoAccessKey,
-      } = await getVideoUploadUrl();
+      } = result.data;
 
       if (!videoUploadUrl || !videoAccessKey) {
         setError("Failed to get video upload URL. Please try again.");
         return;
       }
 
+      setUploadStep("Uploading video... (this may take a while)");
       await uploadFileToBunny(video.file, videoUploadUrl, videoAccessKey);
 
+      setUploadStep("Uploading thumbnail...");
+      const thumbnailresult = await getThumbnailUploadUrl(videoId);
+      if (thumbnailresult.error || !thumbnailresult.data) {
+        setError(
+          thumbnailresult.error ?? "Failed to get thumbnail upload URL.",
+        );
+        return;
+      }
       const {
         uploadUrl: thumbnailUploadUrl,
         cdnUrl: thumbnailCdnUrl,
         accessKey: thumbnailAccessKey,
-      } = await getThumbnailUploadUrl(videoId);
+      } = thumbnailresult.data;
 
       if (!thumbnailUploadUrl || !thumbnailAccessKey) {
         setError("Failed to get thumbnail upload URL. Please try again.");
@@ -110,6 +125,7 @@ const Page = () => {
         thumbnailAccessKey,
       );
 
+      setUploadStep("Saving video details...");
       // save video details to DB
       await saveVideoDetails({
         videoId,
@@ -117,7 +133,7 @@ const Page = () => {
         ...formData,
         duration: videoDuration,
       });
-      router.push(`/videos/${videoId}`);
+      router.push(`/video/${videoId}`);
     } catch (err) {
       console.error(err);
       setError("An error occurred while uploading. Please try again.");
@@ -183,7 +199,33 @@ const Page = () => {
           options={vasibilityOptions}
         />
         <button type="submit" disabled={isSubmitting} className="submit-button">
-          {isSubmitting ? "Uploading..." : "Upload Video"}
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              {/* Spinner */}
+              <svg
+                className="animate-spin h-4 w-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                />
+              </svg>
+              {uploadStep}
+            </span>
+          ) : (
+            "Upload Video"
+          )}
         </button>
       </form>
     </main>

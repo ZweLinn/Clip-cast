@@ -3,10 +3,10 @@
 import { BUNNY } from "@/constants";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
-import { auth } from "@/lib/auth";
 import { apiFetch, getEnv, withErrorHandling } from "@/lib/utils";
 
 import { revalidatePath } from "next/cache";
+import { getSessionUserId } from "@/lib/get-session-id";
 // Constants with full names
 const VIDEO_STREAM_BASE_URL = BUNNY.STREAM_BASE_URL;
 const THUMBNAIL_STORAGE_BASE_URL = BUNNY.STORAGE_BASE_URL;
@@ -17,13 +17,6 @@ const ACCESS_KEYS = {
     storageAccessKey: getEnv("BUNNY_STORAGE_ACCESS_KEY"),
 };
 
-const getSessionUserId = async (): Promise<string> => {
-    const session = await auth.api.getSession();
-    if (!session || !session.user) {
-        throw new Error("Unauthorized");
-    }
-    return session.user.id;
-}
 
 const revalidatePaths = (paths: string[]) => {
     paths.forEach((path) => revalidatePath(path));
