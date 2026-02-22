@@ -2,11 +2,16 @@
 
 import { BUNNY } from "@/constants";
 import { db } from "@/db";
-import { videos } from "@/db/schema";
-import { apiFetch, getEnv, withErrorHandling } from "@/lib/utils";
+import { videos, user } from "@/db/schema";
+import { apiFetch, doesTitleMatch, getEnv, getOrderByClause, withErrorHandling } from "@/lib/utils";
 
 import { revalidatePath } from "next/cache";
 import { getSessionUserId } from "@/lib/get-session-id";
+import aj from "@/lib/arcjet";
+import { fixedWindow, request } from "@arcjet/next";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { and, eq, or, sql } from "drizzle-orm";
 // Constants with full names
 const VIDEO_STREAM_BASE_URL = BUNNY.STREAM_BASE_URL;
 const THUMBNAIL_STORAGE_BASE_URL = BUNNY.STORAGE_BASE_URL;
@@ -21,6 +26,33 @@ const ACCESS_KEYS = {
 const revalidatePaths = (paths: string[]) => {
     paths.forEach((path) => revalidatePath(path));
 };
+
+const validatWithArcjet = async (fingerprint: string) => {
+    const rateLimit = await aj.withRule(
+        fixedWindow({
+            mode: "LIVE",
+            window: '1m',
+            max: 2,
+            characteristics: ['fingerprint']
+
+        })
+    )
+    const req = await request();
+
+    const decision = await rateLimit.protect(req, { fingerprint })
+    if (!decision.isDenied) {
+        throw new Error("Rate limit exceeded. Please try again later.")
+    }
+}
+
+const buildVideoWithUserQuery = () =>
+    db
+        .select({
+            video: videos,
+            user: { id: user.id, name: user.name, image: user.image },
+        })
+        .from(videos)
+        .leftJoin(user, eq(videos.userId, user.id));
 
 export const getVideoUploadUrl = withErrorHandling(async () => {
     await getSessionUserId();
@@ -57,6 +89,7 @@ export const getThumbnailUploadUrl = withErrorHandling(
 
 export const saveVideoDetails = withErrorHandling(async (videoDetails: VideoDetails) => {
     const userId = await getSessionUserId();
+    await validatWithArcjet(userId);
 
     await apiFetch(
         `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails.videoId}`,
@@ -85,3 +118,56 @@ export const saveVideoDetails = withErrorHandling(async (videoDetails: VideoDeta
 
     };
 })
+
+export const getAllVideos = withErrorHandling(async (
+    searchQuery: string = "",
+    sortFilter?: string,
+    pageNumber: number = 1,
+    pageSize: number = 8,
+
+) => {
+    const session = await auth.api.getSession({ headers: await headers() });
+    const currentUserId = session?.user.id || null;
+
+    const canSeeTheVideo = or(
+        eq(videos.visibility, "public"),
+        eq(videos.userId, currentUserId!)
+    )
+
+    const whereConditions = searchQuery.trim() ?
+        and(
+            canSeeTheVideo,
+            doesTitleMatch(videos, searchQuery)
+        ) : (
+            canSeeTheVideo
+        )
+
+    const [{ totalCount }] = await db.
+        select({ totalCount: sql`count(*)` })
+        .from(videos)
+        .where(whereConditions)
+
+    const totalVideos  = Number(totalCount);
+    const totalPages = Math.ceil(totalVideos / pageSize);
+    const videoRecords = await buildVideoWithUserQuery()
+        .where(whereConditions)
+        .orderBy(sortFilter ? getOrderByClause(sortFilter) : sql`${videos.createdAt} DESC`).limit(pageSize).offset((pageNumber - 1) * pageSize);
+
+    return{
+        videos: videoRecords,
+        pagination: {
+            totalVideos,
+            totalPages,
+            currentPage: pageNumber,
+            pageSize
+        }
+    }
+})
+
+export const getVideoById = withErrorHandling(async (videoId: string) => {
+    const [videoRecord] = await buildVideoWithUserQuery()
+        .where(eq(videos.videoId, videoId));
+        return videoRecord;
+
+}
+)

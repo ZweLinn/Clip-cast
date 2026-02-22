@@ -1,11 +1,40 @@
-import React from 'react'
+import { getVideoById } from "@/actions/video";
+import VideoDetailHeader from "@/components/video/video-detail-header";
+import VideoPlayer from "@/components/video/video-player";
+import { redirect } from "next/navigation";
+import React from "react";
 
-const Page = () => {
+const Page = async ({ params }: Params) => {
+  const { videoId } = await params;
+
+  const videoDetail = await getVideoById(videoId);
+  const video = videoDetail?.data?.video;
+  const user = videoDetail?.data?.user;
+
+  if (!video) redirect("/404");
+
   return (
-    <main className='wrapper page' >
-        Video detail
-    </main>
-  )
-}
+    <main className="wrapper page">
+      <h1 className="text-2xl">{video.title}</h1>
 
-export default Page
+      <VideoDetailHeader
+        title={video.title}
+        createdAt={video.createdAt}
+        userImg={user?.image}
+        username={user?.name}
+        videoId={video.videoId}
+        ownerId={video.userId}
+        visibility={video.visibility}
+        thumbnailUrl={video.thumbnailUrl}
+      />
+
+      <section className="video-details">
+        <div className="content">
+          <VideoPlayer videoId={video.videoId} />
+        </div>
+      </section>
+    </main>
+  );
+};
+
+export default Page;

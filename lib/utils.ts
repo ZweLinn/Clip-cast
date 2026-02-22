@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { ilike, sql } from "drizzle-orm";
 // import { videos } from "@/drizzle/schema";
 import { DEFAULT_VIDEO_CONFIG, DEFAULT_RECORDING_CONFIG } from "@/constants";
+import { videos } from "@/db/schema";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -97,19 +98,19 @@ export const withErrorHandling = <T, A extends unknown[]>(
     }
   };
 };
-// export const getOrderByClause = (filter?: string) => {
-//   switch (filter) {
-//     case "Most Viewed":
-//       return sql`${videos.views} DESC`;
-//     case "Least Viewed":
-//       return sql`${videos.views} ASC`;
-//     case "Oldest First":
-//       return sql`${videos.createdAt} ASC`;
-//     case "Most Recent":
-//     default:
-//       return sql`${videos.createdAt} DESC`;
-//   }
-// };
+export const getOrderByClause = (filter?: string) => {
+  switch (filter) {
+    case "Most Viewed":
+      return sql`${videos.views} DESC`;
+    case "Least Viewed":
+      return sql`${videos.views} ASC`;
+    case "Oldest First":
+      return sql`${videos.createdAt} ASC`;
+    case "Most Recent":
+    default:
+      return sql`${videos.createdAt} DESC`;
+  }
+};
 
 export const generatePagination = (currentPage: number, totalPages: number) => {
   if (totalPages <= 7) {
@@ -299,7 +300,7 @@ export function daysAgo(inputDate: Date): string {
 }
 
 export const createIframeLink = (videoId: string) =>
-  `https://iframe.mediadelivery.net/embed/421422/${videoId}?autoplay=true&preload=true`;
+  `https://iframe.mediadelivery.net/embed/${process.env.BUNNY_LIBRARY_ID}/${videoId}?autoplay=true&preload=true`;
 
 export const doesTitleMatch = (videos: any, searchQuery: string) =>
   ilike(
