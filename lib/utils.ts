@@ -153,10 +153,13 @@ export const getMediaStreams = async (
   let micStream: MediaStream | null = null;
 
   if (withMic) {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    micStream
-      .getAudioTracks()
-      .forEach((track: MediaStreamTrack) => (track.enabled = true));
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStream.getAudioTracks().forEach((track) => (track.enabled = true));
+    } catch (err) {
+      console.warn("Mic unavailable or denied, recording without mic:", err);
+      // Don't throw — just continue without mic
+    }
   }
 
   return { displayStream, micStream, hasDisplayAudio };
