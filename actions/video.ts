@@ -104,12 +104,18 @@ export const saveVideoDetails = withErrorHandling(async (videoDetails: VideoDeta
     );
 
     await db.insert(videos).values({
-        ...videoDetails,
-        videoUrl: `${BUNNY.EMBED_URL}/${BUNNY_LIBRARY_ID}/${videoDetails.videoId}`,
-        userId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-    })
+  title:        videoDetails.title,
+  description:  videoDetails.description,
+  videoUrl:     `${BUNNY.EMBED_URL}/${BUNNY_LIBRARY_ID}/${videoDetails.videoId}`,
+  videoId:      videoDetails.videoId,           
+  thumbnailUrl: videoDetails.thumbnailUrl,      
+  visibility:   videoDetails.visibility === "public" 
+                  ? "public" as const 
+                  : "private" as const,         
+  userId,
+  ...(videoDetails.duration !== undefined && { duration: videoDetails.duration }),
+ 
+});
 
     revalidatePaths(["/"]);
     return {

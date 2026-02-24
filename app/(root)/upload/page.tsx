@@ -165,7 +165,9 @@ const Page = () => {
       await saveVideoDetails({
         videoId,
         thumbnailUrl: thumbnailCdnUrl,
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        visibility: formData.visibility as "public" | "private",
         duration: videoDuration,
       });
       router.push(`/video/${videoId}`);

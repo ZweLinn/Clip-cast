@@ -15,15 +15,15 @@ const Page = async ({ params }: Params) => {
   const transcriptresponse = await getTranscript(videoId);
   const transcript = transcriptresponse?.data;
   
-
+  console.log("video" , video)
   if (!video) redirect("/404");
 
   return (
     <main className="wrapper page">
-      <h1 className="text-2xl">{video.title}</h1>
 
       <VideoDetailHeader
         title={video.title}
+        description = {video.description}
         createdAt={video.createdAt}
         userImg={user?.image}
         username={user?.name}
@@ -47,7 +47,7 @@ const Page = async ({ params }: Params) => {
           videoUrl={video.videoUrl}
         />
 
-        
+
       
       </section>
     </main>

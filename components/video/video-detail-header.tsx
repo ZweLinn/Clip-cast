@@ -18,6 +18,7 @@ const VideoDetailHeader = ({
   ownerId,
   visibility,
   thumbnailUrl,
+  description
 }: VideoDetailHeaderProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -86,6 +87,7 @@ const VideoDetailHeader = ({
     <header className="detail-header">
       <aside className="user-info">
         <h1>{title}</h1>
+        <h3 className="text-xl font-medium">{description}</h3>
         <figure>
           <button onClick={() => router.push(`/profile/${ownerId}`)}>
             <ImageWithFallback
