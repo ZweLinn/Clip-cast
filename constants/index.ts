@@ -9,7 +9,7 @@ export const BUNNY = {
   TRANSCRIPT_URL: "https://vz-7bd2fe87-a59.b-cdn.net",
 };
 
-// export const emojis = ["😂", "😍", "👍"];
+export const emojis = ["😂", "😍", "👍"];
 
 // export const filterOptions = [
 //   "Most Viewed",
@@ -33,7 +33,7 @@ export const visibilities: Visibility[] = ["public", "private"];
 //   processingProgress: 0,
 // };
 
-// export const infos = ["transcript", "metadata"];
+export const infos = ["transcript", "metadata"];
 
 // export const DEFAULT_VIDEO_CONFIG = {
 //   width: { ideal: 1920 },

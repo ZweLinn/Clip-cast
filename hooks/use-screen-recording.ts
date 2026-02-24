@@ -28,6 +28,11 @@ export const useScreenRecording = () => {
     cleanupRecording(mediaRecorderRef.current, streamRef.current, streamRef.current?._originalStreams);
     audioContextRef.current?.close().catch(console.error);
     if (state.recordedVideoUrl) URL.revokeObjectURL(state.recordedVideoUrl);
+    if (audioContextRef.current?.state === "closed" ){
+      
+      console.log("Audio context closed");
+    }
+    audioContextRef.current = null;
     };
   }, [state.recordedVideoUrl]);
 

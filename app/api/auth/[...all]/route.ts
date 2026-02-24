@@ -12,7 +12,7 @@ const rateLimitWithArcjet = aj.withRule(slidingWindow(
     {
         mode: "LIVE",
         interval: '2m',
-        max: 1,
+        max: 3,
         characteristics: ['fingerprint']
     }
 ))

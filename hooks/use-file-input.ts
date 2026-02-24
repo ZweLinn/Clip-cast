@@ -2,7 +2,7 @@ import { useState, useRef, ChangeEvent } from "react";
 export const useFileInput = (maxSize: number) => {
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [duration, setDuration] = useState<number | null>(0);
+    const [duration, setDuration] = useState<number | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +24,7 @@ export const useFileInput = (maxSize: number) => {
                     if (isFinite(video.duration) && video.duration > 0) {
                         setDuration(Math.round(video.duration));
                     } else {
-                        setDuration(0);
+                        setDuration(null);
                     }
                     URL.revokeObjectURL(video.src);
                 };
@@ -39,7 +39,7 @@ export const useFileInput = (maxSize: number) => {
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         setFile(null);
         setPreviewUrl(null);
-        setDuration(0);
+        setDuration(null);
         if (inputRef.current) { inputRef.current.value = ""; }
     }
 
